@@ -117,12 +117,39 @@ router.get('/market/overview', requireActive, async (req, res) => {
     const retail_short = 38291;
 
     const sectors = [
-      { name: '半導體', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*30-5).toFixed(1)), stocks: ['台積電2330','聯發科2454','日月光3711'] },
-      { name: 'AI概念', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*30-5).toFixed(1)), stocks: ['廣達2382','緯創3231','英業達2356'] },
-      { name: 'PCB', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*20-5).toFixed(1)), stocks: ['健鼎3044','欣興3037','臻鼎4958'] },
-      { name: '記憶體', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*20-5).toFixed(1)), stocks: ['南亞科2408','華邦電2344','旺宏2337'] },
-      { name: '散熱', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*15-3).toFixed(1)), stocks: ['雙鴻3324','超眾2417','奇鋐3017'] },
-    ];
+  // 電子指數
+  { name: '半導體', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*30-5).toFixed(1)), stocks: ['台積電2330','聯發科2454','聯電2303','日月光3711','力積電6770'] },
+  { name: 'IC設計', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*25-5).toFixed(1)), stocks: ['聯發科2454','聯詠3034','瑞昱2379','祥碩5269','矽力-KY6415'] },
+  { name: '面板', change: parseFloat((Math.random()*4-2).toFixed(2)), flow: parseFloat((Math.random()*15-5).toFixed(1)), stocks: ['友達2409','群創3481','彩晶6116','錸德2349'] },
+  { name: 'PCB', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*20-5).toFixed(1)), stocks: ['健鼎3044','欣興3037','臻鼎4958','南電8046','台郡6269'] },
+  { name: '被動元件', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*15-3).toFixed(1)), stocks: ['國巨2327','華新科2492','禾伸堂3026','奇力新2456'] },
+  { name: '記憶體', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*20-5).toFixed(1)), stocks: ['南亞科2408','華邦電2344','旺宏2337','力晶科5346'] },
+  { name: '伺服器/AI', change: parseFloat((Math.random()*5-1).toFixed(2)), flow: parseFloat((Math.random()*35-5).toFixed(1)), stocks: ['緯穎6669','廣達2382','英業達2356','技嘉2376','神雲3706'] },
+  { name: '散熱', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*15-3).toFixed(1)), stocks: ['雙鴻3324','奇鋐3017','超眾2417','建準2421','泰碩3338'] },
+  { name: '連接器', change: parseFloat((Math.random()*3-1).toFixed(2)), flow: parseFloat((Math.random()*12-3).toFixed(1)), stocks: ['正崴2392','嘉澤3533','良維6290','宣德5457'] },
+  { name: '光學', change: parseFloat((Math.random()*3-1).toFixed(2)), flow: parseFloat((Math.random()*10-3).toFixed(1)), stocks: ['大立光3008','玉晶光3406','先進光3362','亞光3019'] },
+  // 傳產指數
+  { name: '玻璃陶瓷', change: parseFloat((Math.random()*3-1).toFixed(2)), flow: parseFloat((Math.random()*8-2).toFixed(1)), stocks: ['台玻1802','中石化1314','台硝1724'] },
+  { name: '電機機械', change: parseFloat((Math.random()*3-1).toFixed(2)), flow: parseFloat((Math.random()*10-3).toFixed(1)), stocks: ['台達電2308','東元1504','士林電1503','大同2371'] },
+  { name: '鋼鐵', change: parseFloat((Math.random()*3-1.5).toFixed(2)), flow: parseFloat((Math.random()*12-4).toFixed(1)), stocks: ['中鋼2002','豐興2015','燁輝2023','威致2028'] },
+  { name: '石化塑膠', change: parseFloat((Math.random()*3-1).toFixed(2)), flow: parseFloat((Math.random()*12-3).toFixed(1)), stocks: ['台塑1301','南亞1303','台化1326','台塑化6505'] },
+  { name: '水泥', change: parseFloat((Math.random()*2-0.5).toFixed(2)), flow: parseFloat((Math.random()*6-2).toFixed(1)), stocks: ['台泥1101','亞泥1102','信大1108','幸福1108'] },
+  { name: '紡織', change: parseFloat((Math.random()*2-0.5).toFixed(2)), flow: parseFloat((Math.random()*6-2).toFixed(1)), stocks: ['遠東新1402','福懋1434','南紡1440','宏遠1460'] },
+  { name: '航運', change: parseFloat((Math.random()*5-2).toFixed(2)), flow: parseFloat((Math.random()*20-5).toFixed(1)), stocks: ['長榮2603','陽明2609','萬海2615','中航2612'] },
+  { name: '金融保險', change: parseFloat((Math.random()*2-0.5).toFixed(2)), flow: parseFloat((Math.random()*15-3).toFixed(1)), stocks: ['富邦金2881','國泰金2882','中信金2891','兆豐金2886','玉山金2884'] },
+  { name: '汽車零件', change: parseFloat((Math.random()*3-1).toFixed(2)), flow: parseFloat((Math.random()*10-3).toFixed(1)), stocks: ['和泰車2207','正新2105','建大2106','東陽1319'] },
+  { name: '食品', change: parseFloat((Math.random()*2-0.5).toFixed(2)), flow: parseFloat((Math.random()*6-2).toFixed(1)), stocks: ['統一1216','大成1210','卜蜂1215','泰山1218'] },
+  // 熱門主題
+  { name: '無人機', change: parseFloat((Math.random()*6-2).toFixed(2)), flow: parseFloat((Math.random()*20-3).toFixed(1)), stocks: ['雷虎8033','經緯航太8495','長榮航宇2645','鐿鈦4163'] },
+  { name: 'BBU電源', change: parseFloat((Math.random()*5-1).toFixed(2)), flow: parseFloat((Math.random()*18-3).toFixed(1)), stocks: ['台達電2308','康舒6282','碩天3617','直得直得1522'] },
+  { name: 'CoWoS封裝', change: parseFloat((Math.random()*5-1).toFixed(2)), flow: parseFloat((Math.random()*25-3).toFixed(1)), stocks: ['日月光3711','矽格6257','南茂8150','頎邦6147'] },
+  { name: '電動車', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*15-3).toFixed(1)), stocks: ['台達電2308','貿聯-KY3665','信邦3023','和大1536'] },
+  { name: '儲能', change: parseFloat((Math.random()*5-1).toFixed(2)), flow: parseFloat((Math.random()*18-3).toFixed(1)), stocks: ['台達電2308','加百裕3323','順達3211','必翔1729'] },
+  { name: '矽光子', change: parseFloat((Math.random()*6-2).toFixed(2)), flow: parseFloat((Math.random()*20-3).toFixed(1)), stocks: ['台積電2330','聯發科2454','前鼎光5303','統聯-KY5324'] },
+  { name: '液冷散熱', change: parseFloat((Math.random()*5-1).toFixed(2)), flow: parseFloat((Math.random()*20-3).toFixed(1)), stocks: ['雙鴻3324','奇鋐3017','訊凱國際6819','技嘉2376'] },
+  { name: '玻纖布', change: parseFloat((Math.random()*3-1).toFixed(2)), flow: parseFloat((Math.random()*10-3).toFixed(1)), stocks: ['台燿6274','聯茂6617','台光電2383','生益科技'] },
+];
+
 
     const result = { isMarketOpen: isOpen, weighted_index: weightedIndex, futures, premium, market_trend, retail_long, retail_short, sectors, updatedAt: new Date().toISOString() };
     setCache('market_overview', result, isOpen ? 60000 : 300000);
