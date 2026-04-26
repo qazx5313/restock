@@ -48,7 +48,7 @@ function showPage(pageId) {
   });
   const page = document.getElementById(`page-${pageId}`);
   if (page) {
-    page.style.display = '';
+        page.style.display = pageId === 'auth' ? 'flex' : 'block';
     page.classList.add('active');
   }
 }
