@@ -970,6 +970,23 @@ function init() {
 
 init();
 
+async function aiGenerateReport() {
+  const btn = document.getElementById('btn-ai-report');
+  btn.textContent = '🤖 生成中...';
+  btn.disabled = true;
+  try {
+    const data = await api('POST', '/admin/reports/ai-generate');
+    toast('✅ ' + data.message, 'success');
+    loadAdminReports();
+  } catch (err) {
+    toast('AI生成失敗：' + err.message, 'error');
+  } finally {
+    btn.textContent = '🤖 AI生成';
+    btn.disabled = false;
+  }
+}
+
+
 window.openActivateModal = openActivateModal;
 window.revokeUser = revokeUser;
 window.disableUser = disableUser;
