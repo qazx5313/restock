@@ -42,10 +42,17 @@ function toast(msg, type = 'success') {
 
 // ===== 頁面切換 =====
 function showPage(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
   const page = document.getElementById(`page-${pageId}`);
-  if (page) page.classList.add('active');
+  if (page) {
+    page.style.display = '';
+    page.classList.add('active');
+  }
 }
+
 
 function switchSection(name) {
   App.currentPage = name;
