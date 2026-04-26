@@ -546,31 +546,95 @@ async function loadReports() {
 
 async function showReportDetail(id) {
   try {
-    const data = await api('GET', `/reports/${id}`);
-    const r = data.report;
+    const [reportData, screenerData] = await Promise.all([
+      api('GET', `/reports/${id}`),
+      api('GET', '/screener')
+    ]);
+    const r = reportData.report;
+    const stocks = screenerData.stocks || [];
     const trendMap = { bullish: '多頭 ▲', bearish: '空頭 ▼', sideways: '震盪 ↔' };
     const trendCls = { bullish: 'up', bearish: 'down', sideways: 'warn' };
+
+    const flowInCount = stocks.filter(s => s.flow === '流入').length;
+    const mainBuyCount = stocks.filter(s => s.mainForce === '吃貨' || s.mainForce === '拉抬').length;
+    const techCount = stocks.filter(s => s.distMA > 0 && s.distMA < 8).length;
+    const flowInPct = stocks.length ? Math.round(flowInCount/stocks.length*100) : 0;
+    const mainBuyPct = stocks.length ? Math.round(mainBuyCount/stocks.length*100) : 0;
+    const techPct = stocks.length ? Math.round(techCount/stocks.length*100) : 0;
+
+    const top10 = [...stocks].sort((a,b) => b.score - a.score).slice(0, 10);
+
     showModal(`
-      <div style="padding-top:8px">
-        <div style="font-size:11px;color:var(--text-sub);margin-bottom:6px;font-family:'JetBrains Mono',monospace">${r.report_date}</div>
-        <h2 style="font-size:18px;font-weight:700;color:var(--primary);margin-bottom:12px">${r.title}</h2>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
-          <span style="font-size:12px;color:var(--text-sub)">盤勢判斷：</span>
-          <span class="${trendCls[r.market_trend] || ''}" style="font-size:14px;font-weight:700">${trendMap[r.market_trend] || '--'}</span>
-        </div>
+      <div style="padding-top:4px">
+        <div style="font-size:11px;color:var(--text-sub);margin-bottom:4px;font-family:'JetBrains Mono',monospace">${r.report_date}</div>
+        <h2 style="font-size:17px;font-weight:700;color:var(--primary);margin-bottom:8px">${r.title}</h2>
+        <span class="${trendCls[r.market_trend]||''}" style="font-size:13px;font-weight:700">${trendMap[r.market_trend]||'--'}</span>
+
         ${r.summary ? `
-          <div style="background:var(--card-bg);border-radius:8px;padding:14px;margin-bottom:16px;border:1px solid var(--border)">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-sub);margin-bottom:8px">核心摘要</div>
-            <div style="font-size:13px;line-height:1.8;color:var(--text)">${r.summary}</div>
+        <div style="background:var(--card-bg);border-radius:8px;padding:12px;margin:12px 0;border:1px solid var(--border)">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-sub);margin-bottom:6px">📋 核心摘要</div>
+          <div style="font-size:12px;line-height:1.8;color:var(--text);white-space:pre-line">${r.summary}</div>
+        </div>` : ''}
+
+        <div style="font-size:11px;font-weight:700;color:var(--text-sub);margin:12px 0 6px;text-transform:uppercase;letter-spacing:0.8px">📊 篩選股票表（今日前10名）</div>
+        <div style="overflow-x:auto;margin-bottom:12px">
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <thead>
+              <tr style="background:var(--primary);color:#fff">
+                <th style="padding:6px 4px;text-align:center">排名</th>
+                <th style="padding:6px 4px;text-align:left">股票</th>
+                <th style="padding:6px 4px;text-align:right">現價</th>
+                <th style="padding:6px 4px;text-align:center">技術</th>
+                <th style="padding:6px 4px;text-align:center">資金</th>
+                <th style="padding:6px 4px;text-align:center">主力</th>
+                <th style="padding:6px 4px;text-align:center">評分</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${top10.map((s, i) => `
+                <tr style="border-bottom:1px solid var(--border);background:${i%2===0?'var(--card-bg)':'transparent'}" onclick="searchStock('${s.code}')" style="cursor:pointer">
+                  <td style="padding:6px 4px;text-align:center;font-weight:700">${i+1}</td>
+                  <td style="padding:6px 4px"><div style="font-weight:700">${s.code}</div><div style="color:var(--text-sub);font-size:10px">${s.name}</div></td>
+                  <td style="padding:6px 4px;text-align:right;font-family:'JetBrains Mono',monospace">${s.price}</td>
+                  <td style="padding:6px 4px;text-align:center">${s.distMA >= 0 && s.distMA < 8 ? '✅' : s.distMA >= 8 ? '⚠️' : '❌'}</td>
+                  <td style="padding:6px 4px;text-align:center">${s.flow === '流入' ? '🔥' : s.flow === '流出' ? '❌' : '➡️'}</td>
+                  <td style="padding:6px 4px;text-align:center">${s.mainForce === '拉抬' || s.mainForce === '吃貨' ? '✅' : s.mainForce === '出貨' ? '❌' : '⚠️'}</td>
+                  <td style="padding:6px 4px;text-align:center;color:var(--accent);font-weight:700">${'★'.repeat(s.score)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="font-size:11px;font-weight:700;color:var(--text-sub);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.8px">📈 整體統計</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+          <div style="background:var(--card-bg);border-radius:8px;padding:10px;border:1px solid var(--border);text-align:center">
+            <div style="font-size:10px;color:var(--text-sub)">符合條件股票</div>
+            <div style="font-size:22px;font-weight:900;color:var(--primary)">${stocks.length}</div>
+            <div style="font-size:10px;color:var(--text-sub)">檔</div>
           </div>
-        ` : ''}
-        <div style="font-size:12px;color:var(--text-sub);text-align:right">by ${r.author_name || '管理員'}</div>
+          <div style="background:var(--card-bg);border-radius:8px;padding:10px;border:1px solid var(--border);text-align:center">
+            <div style="font-size:10px;color:var(--text-sub)">資金流入比例</div>
+            <div style="font-size:22px;font-weight:900;color:var(--up)">${flowInPct}%</div>
+          </div>
+          <div style="background:var(--card-bg);border-radius:8px;padding:10px;border:1px solid var(--border);text-align:center">
+            <div style="font-size:10px;color:var(--text-sub)">主力連買比例</div>
+            <div style="font-size:22px;font-weight:900;color:var(--up)">${mainBuyPct}%</div>
+          </div>
+          <div style="background:var(--card-bg);border-radius:8px;padding:10px;border:1px solid var(--border);text-align:center">
+            <div style="font-size:10px;color:var(--text-sub)">技術轉強比例</div>
+            <div style="font-size:22px;font-weight:900;color:var(--accent)">${techPct}%</div>
+          </div>
+        </div>
+
+        <div style="font-size:11px;color:var(--text-sub);text-align:right">by ${r.author_name || '管理員'}</div>
       </div>
     `);
   } catch (err) {
     toast('載入報告失敗', 'error');
   }
 }
+
 
 // ===== Modal =====
 function showModal(content) {
