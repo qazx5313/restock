@@ -38,7 +38,7 @@ body {
 }
 
 /* ===== 頁面切換 ===== */
-.page { display: none; min-height: 100vh; }
+.page { display: flex; min-height: 100vh; }
 .page.active { display: block; }
 
 /* ===== 通用按鈕 ===== */
