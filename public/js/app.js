@@ -963,8 +963,6 @@ function init() {
   }
 }
 
-init();
-
 async function aiGenerateReport() {
   const btn = document.getElementById('btn-ai-report');
   btn.textContent = '🤖 生成中...';
@@ -980,6 +978,9 @@ async function aiGenerateReport() {
     btn.disabled = false;
   }
 }
+
+init();
+
 
 
 window.openActivateModal = openActivateModal;
