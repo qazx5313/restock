@@ -33,6 +33,8 @@ app.use(express.urlencoded({ extended: true }));
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200,
+    validate: { xForwardedForHeader: false },
+
   message: { error: '請求過於頻繁，請稍後再試' }
 });
 const authLimiter = rateLimit({
