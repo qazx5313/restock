@@ -790,6 +790,21 @@ document.getElementById('admin-reports-list').addEventListener('click', (e) => {
 });
 
 
+document.getElementById('btn-ai-report').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-ai-report');
+  btn.textContent = '⏳ 生成中...';
+  btn.disabled = true;
+  try {
+    const data = await api('POST', '/admin/reports/ai-generate');
+    toast('✅ ' + data.message, 'success');
+    loadAdminReports();
+  } catch (err) {
+    toast('AI生成失敗：' + err.message, 'error');
+  } finally {
+    btn.textContent = '🤖 AI生成';
+    btn.disabled = false;
+  }
+});
 
 
 document.getElementById('btn-new-report').addEventListener('click', () => {
