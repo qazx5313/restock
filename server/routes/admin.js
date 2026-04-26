@@ -114,7 +114,27 @@ router.post('/reports/ai-generate', async (req, res) => {
     const now = new Date();
     const today = now.toLocaleDateString('zh-TW');
     const isOpen = now.getHours() >= 9 && now.getHours() < 14;
-    const prompt = `你是一位專業的台股分析師，請根據今日市場狀況產出一份台股操作報告。今日日期：${today}，市場狀態：${isOpen ? '盤中' : '收盤後'}。請只回傳JSON格式：{"title":"報告標題","market_trend":"bullish或bearish或sideways","summary":"核心摘要約200字","conclusion":"操作建議約100字"}`;
+    let screenerStocks = [];
+try {
+  const apiRoute = require('./api');
+  if (apiRoute.getScreenerData) screenerStocks = apiRoute.getScreenerData();
+} catch(e) {}
+
+const topStocks = screenerStocks.slice(0, 10).map(s =>
+  `${s.name}(${s.code}) 現價${s.price} 技術${s.distMA >= 0 && s.distMA < 8 ? '突破MA' : '整理'} 資金${s.flow} 主力${s.mainForce} 評分${s.score}星`
+).join('\n');
+
+const prompt = `你是一位專業的台股分析師，請根據以下今日實際篩選數據產出報告摘要。
+
+今日日期：${today}
+市場狀態：${isOpen ? '盤中' : '收盤後'}
+
+今日篩選強勢股（真實數據）：
+${topStocks || '篩選數據更新中，請稍後再生成'}
+
+請只回傳JSON格式，不要其他文字：
+{"title":"報告標題（含日期）","market_trend":"bullish或bearish或sideways","summary":"根據上方真實股票數據寫摘要約150字，提到具體族群和股票名稱","conclusion":"今日操作建議約80字"}`;
+
     const groqRes = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       { model: 'llama-3.1-8b-instant',messages: [{ role: 'system', content: '你是專業台股分析師，用繁體中文，只回傳JSON。' }, { role: 'user', content: prompt }], temperature: 0.7, max_tokens: 1000 },
