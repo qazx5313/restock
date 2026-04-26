@@ -344,4 +344,7 @@ router.get('/reports/:id', requireActive, async (req, res) => {
   } catch (err) { res.status(500).json({ error: '伺服器錯誤' }); }
 });
 
+function getScreenerData() { return screenerData; }
 module.exports = router;
+module.exports.getScreenerData = getScreenerData;
+
