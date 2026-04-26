@@ -117,7 +117,7 @@ router.post('/reports/ai-generate', async (req, res) => {
     const prompt = `你是一位專業的台股分析師，請根據今日市場狀況產出一份台股操作報告。今日日期：${today}，市場狀態：${isOpen ? '盤中' : '收盤後'}。請只回傳JSON格式：{"title":"報告標題","market_trend":"bullish或bearish或sideways","summary":"核心摘要約200字","conclusion":"操作建議約100字"}`;
     const groqRes = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
-      { model: 'llama3-8b-8192', messages: [{ role: 'system', content: '你是專業台股分析師，用繁體中文，只回傳JSON。' }, { role: 'user', content: prompt }], temperature: 0.7, max_tokens: 1000 },
+      { model: 'llama-3.1-8b-instant',messages: [{ role: 'system', content: '你是專業台股分析師，用繁體中文，只回傳JSON。' }, { role: 'user', content: prompt }], temperature: 0.7, max_tokens: 1000 },
       { headers: { 'Authorization': `Bearer ${process.env.GROQ_API_KEY}`, 'Content-Type': 'application/json' }, timeout: 30000 }
     );
     const text = groqRes.data?.choices?.[0]?.message?.content || '';
