@@ -38,7 +38,7 @@ body {
 }
 
 /* ===== 頁面切換 ===== */
-.page { display: flex; min-height: 100vh; }
+.page { display: none; min-height: 100vh; }
 .page.active { display: block; }
 
 /* ===== 通用按鈕 ===== */
@@ -129,7 +129,7 @@ input:focus, select:focus, textarea:focus {
 
 /* ===== 登入頁 ===== */
 #page-auth {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
@@ -863,7 +863,7 @@ input:focus, select:focus, textarea:focus {
   background: rgba(11,60,93,0.4);
   backdrop-filter: blur(4px);
   z-index: 200;
-  display: flex !important;
+  display: none !important;
   align-items: flex-end;
   justify-content: center;
   padding: 16px;
