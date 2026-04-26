@@ -611,6 +611,17 @@ async function loadAdminMembers() {
     wrapEl.innerHTML = `<div class="empty-state"><div>載入失敗</div></div>`;
   }
 }
+document.getElementById('members-table-wrap').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const id = btn.dataset.id;
+  const name = btn.dataset.name;
+  if (action === 'activate') openActivateModal(id, name);
+  if (action === 'revoke') revokeUser(id);
+  if (action === 'disable') disableUser(id);
+});
+
 
 function renderMembersTable(users) {
   const wrapEl = document.getElementById('members-table-wrap');
