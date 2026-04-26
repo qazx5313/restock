@@ -252,7 +252,7 @@ async function loadMarketOverview() {
     // 族群
     const sectorsEl = document.getElementById('sectors-list');
     sectorsEl.innerHTML = data.sectors.map(s => `
-      <div class="sector-row" onclick="showSectorStocks('${s.name}', ${JSON.stringify(s.stocks).replace(/'/g, '&apos;')})">
+  <div class="sector-row" data-sector-name="${s.name}" data-sector-stocks="${encodeURIComponent(JSON.stringify(s.stocks))}">
         <div class="sector-name">${s.name}</div>
         <div class="sector-flow ${s.flow >= 0 ? 'up' : 'down'}">
           ${s.flow >= 0 ? '+' : ''}${s.flow}億
