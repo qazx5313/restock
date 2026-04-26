@@ -150,6 +150,8 @@ router.get('/market/overview', requireActive, async (req, res) => {
   { name: '玻纖布', change: parseFloat((Math.random()*3-1).toFixed(2)), flow: parseFloat((Math.random()*10-3).toFixed(1)), stocks: ['台燿6274','聯茂6617','台光電2383','生益科技'] },
 ];
 
+     // 依資金流入由多到少排序
+sectors.sort((a, b) => b.flow - a.flow);
 
     const result = { isMarketOpen: isOpen, weighted_index: weightedIndex, futures, premium, market_trend, retail_long, retail_short, sectors, updatedAt: new Date().toISOString() };
     setCache('market_overview', result, isOpen ? 60000 : 300000);
