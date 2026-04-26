@@ -183,13 +183,22 @@ router.get('/stock/:code', requireActive, async (req, res) => {
 
     const closes = (candles?.data || []).map(c => c.close).filter(v => v).reverse();
     const ma5 = closes.length >= 5 ? parseFloat((closes.slice(-5).reduce((a,b)=>a+b,0)/5).toFixed(1)) : price;
+    const ma10 = closes.length >= 10 ? parseFloat((closes.slice(-10).reduce((a,b)=>a+b,0)/10).toFixed(1)) : price;
     const ma20 = closes.length >= 20 ? parseFloat((closes.slice(-20).reduce((a,b)=>a+b,0)/20).toFixed(1)) : price;
     const ma60 = closes.length >= 60 ? parseFloat((closes.slice(-60).reduce((a,b)=>a+b,0)/60).toFixed(1)) : price;
 
     let trend = '整理', state = '觀望';
-    if (price > ma5 && ma5 > ma20 && ma20 > ma60) { trend = '多頭'; state = '突破'; }
-    else if (price < ma5 && ma5 < ma20) { trend = '空頭'; state = '跌破'; }
-    else if (Math.abs(price - ma20) / ma20 < 0.03) { state = '回測'; }
+if (changePercent >= 9.5) {
+  trend = '多頭'; state = '漲停';
+} else if (price > ma5) {
+  trend = '多頭';
+  state = changePercent >= 3 ? '強勢拉升' : price > ma20 ? '突破' : '站上5MA';
+} else if (price < ma10) {
+  trend = '空頭'; state = '跌破10MA轉弱';
+} else {
+  trend = '整理'; state = '整理觀望';
+}
+
 
     const validCloses = closes.slice(-60).filter(v => v);
     const maxClose = validCloses.length > 0 ? Math.max(...validCloses) : price;
