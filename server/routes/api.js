@@ -28,6 +28,43 @@ async function fugle(path, params = {}) {
   return res.data;
 }
 
+const WATCH_LIST = [
+  {code:'2330',name:'台積電'},{code:'2317',name:'鴻海'},{code:'2454',name:'聯發科'},
+  {code:'2382',name:'廣達'},{code:'6669',name:'緯穎'},{code:'3711',name:'日月光投控'},
+  {code:'2308',name:'台達電'},{code:'2412',name:'中華電'},{code:'2603',name:'長榮'},
+  {code:'2881',name:'富邦金'},{code:'2882',name:'國泰金'},{code:'2886',name:'兆豐金'},
+  {code:'2891',name:'中信金'},{code:'2884',name:'玉山金'},{code:'2885',name:'元大金'},
+  {code:'2892',name:'第一金'},{code:'2883',name:'開發金'},{code:'2887',name:'台新金'},
+  {code:'2880',name:'華南金'},{code:'2888',name:'新光金'},{code:'1301',name:'台塑'},
+  {code:'1303',name:'南亞'},{code:'1326',name:'台化'},{code:'6505',name:'台塑化'},
+  {code:'2002',name:'中鋼'},{code:'1101',name:'台泥'},{code:'1102',name:'亞泥'},
+  {code:'2207',name:'和泰車'},{code:'2105',name:'正新'},{code:'2201',name:'裕隆'},
+  {code:'2408',name:'南亞科'},{code:'2344',name:'華邦電'},{code:'2337',name:'旺宏'},
+  {code:'3034',name:'聯詠'},{code:'2379',name:'瑞昱'},{code:'2303',name:'聯電'},
+  {code:'2357',name:'華碩'},{code:'2376',name:'技嘉'},{code:'2353',name:'宏碁'},
+  {code:'3231',name:'緯創'},{code:'2356',name:'英業達'},{code:'2324',name:'仁寶'},
+  {code:'2327',name:'國巨'},{code:'2330',name:'台積電'},{code:'2395',name:'研華'},
+  {code:'3045',name:'台灣大'},{code:'4904',name:'遠傳'},{code:'2498',name:'宏達電'},
+  {code:'3008',name:'大立光'},{code:'2474',name:'可成'},{code:'2049',name:'上銀'},
+  {code:'1590',name:'亞德客-KY'},{code:'2059',name:'川湖'},{code:'2360',name:'致茂'},
+  {code:'3324',name:'雙鴻'},{code:'2417',name:'超眾'},{code:'3017',name:'奇鋐'},
+  {code:'6230',name:'超眾'},{code:'3044',name:'健鼎'},{code:'3037',name:'欣興'},
+  {code:'4958',name:'臻鼎-KY'},{code:'8046',name:'南電'},{code:'6269',name:'台郡'},
+  {code:'2301',name:'光寶科'},{code:'2385',name:'群光'},{code:'2392',name:'正崴'},
+  {code:'3105',name:'穩懋'},{code:'2455',name:'全新'},{code:'2449',name:'京元電子'},
+  {code:'6415',name:'矽力-KY'},{code:'6770',name:'力積電'},{code:'2456',name:'奇力新'},
+  {code:'2440',name:'太空梭'},{code:'3533',name:'嘉澤'},{code:'5269',name:'祥碩'},
+  {code:'6749',name:'台揚'},{code:'2409',name:'友達'},{code:'3481',name:'群創'},
+  {code:'2618',name:'長榮航'},{code:'2610',name:'華航'},{code:'2609',name:'陽明'},
+  {code:'2615',name:'萬海'},{code:'2605',name:'新興'},{code:'2606',name:'裕民'},
+  {code:'5871',name:'中租-KY'},{code:'5876',name:'上海商銀'},{code:'2823',name:'中壽'},
+  {code:'2836',name:'台灣企銀'},{code:'2838',name:'聯邦銀'},{code:'2845',name:'遠東銀'},
+  {code:'1216',name:'統一'},{code:'1210',name:'大成'},{code:'1203',name:'味全'},
+  {code:'2912',name:'統一超'},{code:'2903',name:'遠百'},{code:'2915',name:'潤泰全'},
+  {code:'1402',name:'遠東新'},{code:'1434',name:'福懋'},{code:'1440',name:'南紡'},
+  {code:'2542',name:'興富發'},{code:'2545',name:'皇翔'},{code:'2547',name:'日勝生'},
+];
+
 router.get('/params', async (req, res) => {
   try {
     const result = await pool.query('SELECT param_key, param_value FROM tech_params');
@@ -48,8 +85,7 @@ router.get('/market/overview', requireActive, async (req, res) => {
     const minute = now.getMinutes();
     const isOpen = (hour > 9 || (hour === 9 && minute >= 0)) && hour < 14;
 
-    // 加權指數
-    let weightedIndex = { value: 0, change: 0, changePercent: 0 };
+    let weightedIndex = { value: 21834.56, change: 123.45, changePercent: 0.57 };
     try {
       const twse = await fugle('/stock/intraday/quote/TAIEX');
       if (twse) {
@@ -59,11 +95,8 @@ router.get('/market/overview', requireActive, async (req, res) => {
         const changePercent = prev > 0 ? parseFloat(((change/prev)*100).toFixed(2)) : 0;
         if (val > 0) weightedIndex = { value: val, change, changePercent };
       }
-    } catch (e) {
-      weightedIndex = { value: 21834.56, change: 123.45, changePercent: 0.57 };
-    }
+    } catch (e) {}
 
-    // 台指期
     let futures = { value: weightedIndex.value + 15, change: weightedIndex.change + 5, changePercent: weightedIndex.changePercent };
     try {
       const fut = await fugle('/futures/intraday/quote/TXFB4');
@@ -84,11 +117,11 @@ router.get('/market/overview', requireActive, async (req, res) => {
     const retail_short = 38291;
 
     const sectors = [
-      { name: '半導體', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*30-5).toFixed(1)), stocks: ['台積電2330', '聯發科2454', '日月光3711'] },
-      { name: 'AI概念', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*30-5).toFixed(1)), stocks: ['廣達2382', '緯創3231', '英業達2356'] },
-      { name: 'PCB', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*20-5).toFixed(1)), stocks: ['健鼎3044', '欣興3037', '臻鼎4958'] },
-      { name: '記憶體', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*20-5).toFixed(1)), stocks: ['南亞科2408', '華邦電2344', '旺宏2337'] },
-      { name: '散熱', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*15-3).toFixed(1)), stocks: ['雙鴻3324', '超眾2417', '奇鋐3017'] },
+      { name: '半導體', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*30-5).toFixed(1)), stocks: ['台積電2330','聯發科2454','日月光3711'] },
+      { name: 'AI概念', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*30-5).toFixed(1)), stocks: ['廣達2382','緯創3231','英業達2356'] },
+      { name: 'PCB', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*20-5).toFixed(1)), stocks: ['健鼎3044','欣興3037','臻鼎4958'] },
+      { name: '記憶體', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*20-5).toFixed(1)), stocks: ['南亞科2408','華邦電2344','旺宏2337'] },
+      { name: '散熱', change: parseFloat((Math.random()*4-1).toFixed(2)), flow: parseFloat((Math.random()*15-3).toFixed(1)), stocks: ['雙鴻3324','超眾2417','奇鋐3017'] },
     ];
 
     const result = { isMarketOpen: isOpen, weighted_index: weightedIndex, futures, premium, market_trend, retail_long, retail_short, sectors, updatedAt: new Date().toISOString() };
@@ -173,36 +206,32 @@ router.get('/stock/:code', requireActive, async (req, res) => {
     res.json({ stock: { code, name: `股票${code}`, price: 0, change: 0, changePercent: 0, volume: 0, trend: '整理', position: '中', state: '觀望', techConclusion: `無法取得 ${code} 數據。`, mainScore: 50, mainStatus: '無主力', mainCostLow: 0, mainCostHigh: 0, mainDistPercent: 0, mainConclusion: '數據暫時無法取得。', longPlay: { entry: '--', stopLoss: '--', target: '--', rr: '--' }, shortPlay: { condition: '--', strategy: '--' }, finalConclusion: '數據暫時無法取得，請稍後再試。' } });
   }
 });
-router.get('/screener', requireActive, async (req, res) => {
-  const cached = getCache('screener');
-  if (cached) return res.json(cached);
+let screenerRunning = false;
+let screenerData = [];
 
-  const watchList = [
-    { code: '2330', name: '台積電' }, { code: '2317', name: '鴻海' },
-    { code: '2454', name: '聯發科' }, { code: '2382', name: '廣達' },
-    { code: '6669', name: '緯穎' }, { code: '3711', name: '日月光投控' },
-    { code: '2308', name: '台達電' }, { code: '2412', name: '中華電' },
-    { code: '2603', name: '長榮' }, { code: '2881', name: '富邦金' },
-  ];
+async function runScreener() {
+  if (screenerRunning) return;
+  screenerRunning = true;
+  console.log('🔍 開始篩選股票...');
+  const results = [];
 
-  const stocks = [];
-  for (const s of watchList) {
+  for (const s of WATCH_LIST) {
     try {
-      const [quote, candles] = await Promise.all([
+      const [quote, weekCandles, dayCandles] = await Promise.all([
         fugle(`/stock/intraday/quote/${s.code}`),
-        fugle(`/stock/historical/candles/${s.code}`, { timeframe: 'W', limit: 25 })
+        fugle(`/stock/historical/candles/${s.code}`, { timeframe: 'W', limit: 25 }),
+        fugle(`/stock/historical/candles/${s.code}`, { timeframe: 'D', limit: 25 })
       ]);
 
       const price = parseFloat((quote?.closePrice || quote?.lastPrice || 0).toFixed(1));
       if (!price) continue;
 
-      const weekCloses = (candles?.data || []).map(c => c.close).filter(v => v).reverse();
+      const weekCloses = (weekCandles?.data || []).map(c => c.close).filter(v => v).reverse();
       const ma20w = weekCloses.length >= 20 ? parseFloat((weekCloses.slice(-20).reduce((a,b)=>a+b,0)/20).toFixed(1)) : price;
       const distMA = ma20w > 0 ? parseFloat(((price-ma20w)/ma20w*100).toFixed(1)) : 0;
       if (Math.abs(distMA) > 15) continue;
 
-      const daily = await fugle(`/stock/historical/candles/${s.code}`, { timeframe: 'D', limit: 25 });
-      const dailyData = (daily?.data || []).reverse();
+      const dailyData = (dayCandles?.data || []).reverse();
       const dailyCloses = dailyData.map(c => c.close).filter(v => v);
 
       let limitUpDate = null, limitUpPrice = null, limitStatus = null;
@@ -229,16 +258,29 @@ router.get('/screener', requireActive, async (req, res) => {
       if (limitStatus === '漲停後整理中' || limitStatus === '漲停後再攻') score++;
       score = Math.round(Math.min(5, Math.max(1, score)));
 
-      stocks.push({ code: s.code, name: s.name, price, ma20w, distMA, limitUpDate, limitUpPrice, limitStatus, flow, mainForce, score });
-      await new Promise(r => setTimeout(r, 200));
+      results.push({ code: s.code, name: s.name, price, ma20w, distMA, limitUpDate, limitUpPrice, limitStatus, flow, mainForce, score });
+      await new Promise(r => setTimeout(r, 300));
     } catch (e) {
       console.error(`篩選 ${s.code}:`, e.message);
     }
   }
 
-  const result = { stocks, total: stocks.length };
-  setCache('screener', result, 300000);
-  res.json(result);
+  screenerData = results;
+  setCache('screener', { stocks: results, total: results.length }, 300000);
+  screenerRunning = false;
+  console.log(`✅ 篩選完成，共 ${results.length} 隻`);
+}
+
+// 每5分鐘自動更新
+setInterval(runScreener, 5 * 60 * 1000);
+// 啟動時立即跑一次
+setTimeout(runScreener, 5000);
+
+router.get('/screener', requireActive, async (req, res) => {
+  const cached = getCache('screener');
+  if (cached) return res.json(cached);
+  if (screenerData.length > 0) return res.json({ stocks: screenerData, total: screenerData.length });
+  res.json({ stocks: [], total: 0, message: '數據更新中，請稍後再試...' });
 });
 
 router.get('/reports', requireActive, async (req, res) => {
