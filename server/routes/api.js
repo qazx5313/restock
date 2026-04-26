@@ -81,9 +81,10 @@ router.get('/market/overview', requireActive, async (req, res) => {
     if (cached) return res.json(cached);
 
     const now = new Date();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
-    const isOpen = (hour > 9 || (hour === 9 && minute >= 0)) && hour < 14;
+    const taiwanHour = (now.getUTCHours() + 8) % 24;
+const taiwanMinute = now.getUTCMinutes();
+const isOpen = (taiwanHour > 9 || (taiwanHour === 9 && taiwanMinute >= 0)) && taiwanHour < 14;
+
 
     let weightedIndex = { value: 21834.56, change: 123.45, changePercent: 0.57 };
     try {
