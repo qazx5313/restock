@@ -649,9 +649,9 @@ function renderMembersTable(users) {
                 <td class="${expClass}" style="font-size:12px;font-family:'JetBrains Mono',monospace">${expStr}</td>
                 <td>
                   <div class="member-actions">
-                    <button class="action-btn action-activate" onclick="openActivateModal(${u.id},'${u.nickname}')">開通</button>
-                    ${u.status !== 'pending' ? `<button class="action-btn action-revoke" onclick="revokeUser(${u.id})">取消</button>` : ''}
-                    ${u.status !== 'disabled' ? `<button class="action-btn action-disable" onclick="disableUser(${u.id})">停用</button>` : ''}
+                    <button class="action-btn action-activate" data-action="activate" data-id="${u.id}" data-name="${u.nickname}">開通</button>
+                    ${u.status !== 'pending' ? `<button class="action-btn action-revoke" data-action="revoke" data-id="${u.id}">取消</button>` : ''}
+${u.status !== 'disabled' ? `<button class="action-btn action-disable" data-action="disable" data-id="${u.id}">停用</button>` : ''}
                   </div>
                 </td>
               </tr>
