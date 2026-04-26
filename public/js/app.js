@@ -761,8 +761,9 @@ async function loadAdminReports() {
           </div>
           <div class="ari-actions">
             <span class="report-status-badge ${statusMap[r.status]}">${statusLabel[r.status]}</span>
-            <button class="action-btn action-activate" onclick="editReport(${r.id})">編輯</button>
-            <button class="action-btn action-disable" onclick="deleteReport(${r.id})">刪除</button>
+            <button class="action-btn action-activate" data-action="edit-report" data-id="${r.id}">編輯</button>
+<button class="action-btn action-disable" data-action="delete-report" data-id="${r.id}">刪除</button>
+
           </div>
         </div>
       `).join('');
@@ -770,6 +771,15 @@ async function loadAdminReports() {
     listEl.innerHTML = '<div class="empty-state"><div>載入失敗</div></div>';
   }
 }
+document.getElementById('admin-reports-list').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const id = btn.dataset.id;
+  if (action === 'edit-report') editReport(parseInt(id));
+  if (action === 'delete-report') deleteReport(parseInt(id));
+});
+
 
 document.getElementById('btn-new-report').addEventListener('click', () => {
   document.getElementById('rf-id').value = '';
