@@ -253,13 +253,27 @@ router.post('/reports/ai-generate', async (req, res) => {
   "conclusion": "今日操作建議約100字"
 }`;
 
-    const geminiRes = await axios.post(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`
-,
-  { contents: [{ parts: [{ text: prompt }] }] },
-  { headers: { 'Content-Type': 'application/json' }, timeout: 30000 }
+    const groqRes = await axios.post(
+  'https://api.groq.com/openai/v1/chat/completions',
+  {
+    model: 'llama3-8b-8192',
+    messages: [
+      { role: 'system', content: '你是一位專業的台股分析師，請用繁體中文回答，只回傳JSON格式。' },
+      { role: 'user', content: prompt }
+    ],
+    temperature: 0.7,
+    max_tokens: 1000,
+  },
+  {
+    headers: {
+      'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    timeout: 30000,
+  }
 );
-const text = geminiRes.data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+const text = groqRes.data?.choices?.[0]?.message?.content || '';
+
 
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI回傳格式錯誤');
