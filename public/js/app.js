@@ -990,4 +990,5 @@ window.showSectorStocks = showSectorStocks;
 window.showReportDetail = showReportDetail;
 window.editReport = editReport;
 window.deleteReport = deleteReport;
+window.aiGenerateReport = aiGenerateReport;
 
