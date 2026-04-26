@@ -1,11 +1,9 @@
 const express = require('express');
 const { pool } = require('../db');
 const { authMiddleware, requireAdmin } = require('../middleware/auth');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const GEMINI_MODEL = 'gemini-1.5-flash-latest';
 const axios = require('axios');
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
 
 
 const router = express.Router();
@@ -255,9 +253,13 @@ router.post('/reports/ai-generate', async (req, res) => {
   "conclusion": "今日操作建議約100字"
 }`;
 
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const geminiRes = await axios.post(
+  `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+  { contents: [{ parts: [{ text: prompt }] }] },
+  { headers: { 'Content-Type': 'application/json' }, timeout: 30000 }
+);
+const text = geminiRes.data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI回傳格式錯誤');
     const aiData = JSON.parse(jsonMatch[0]);
