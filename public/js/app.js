@@ -930,3 +930,13 @@ function init() {
 }
 
 init();
+
+window.openActivateModal = openActivateModal;
+window.revokeUser = revokeUser;
+window.disableUser = disableUser;
+window.searchStock = searchStock;
+window.showSectorStocks = showSectorStocks;
+window.showReportDetail = showReportDetail;
+window.editReport = editReport;
+window.deleteReport = deleteReport;
+
