@@ -2,6 +2,7 @@ const express = require('express');
 const { pool } = require('../db');
 const { authMiddleware, requireAdmin } = require('../middleware/auth');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const GEMINI_MODEL = 'gemini-1.5-flash-latest';
 const axios = require('axios');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -254,7 +255,7 @@ router.post('/reports/ai-generate', async (req, res) => {
   "conclusion": "今日操作建議約100字"
 }`;
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     const jsonMatch = text.match(/\{[\s\S]*\}/);
