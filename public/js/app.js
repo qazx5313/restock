@@ -167,6 +167,8 @@ document.getElementById('page-pending').style.display = 'flex';
   // 顯示主系統
   showPage('main');
   document.getElementById('nav-username').textContent = user.nickname;
+document.getElementById('bnav-admin').style.display = 'none';
+document.getElementById('qe-admin').style.display = 'none';
 
   // 管理員入口
   if (user.role === 'admin') {
