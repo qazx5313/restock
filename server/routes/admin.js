@@ -1,6 +1,11 @@
 const express = require('express');
 const { pool } = require('../db');
 const { authMiddleware, requireAdmin } = require('../middleware/auth');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const axios = require('axios');
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
 
 const router = express.Router();
 router.use(authMiddleware, requireAdmin);
@@ -228,5 +233,47 @@ router.delete('/reports/:id', async (req, res) => {
     res.status(500).json({ error: '伺服器錯誤' });
   }
 });
+
+// AI 生成報告
+router.post('/reports/ai-generate', async (req, res) => {
+  try {
+    const now = new Date();
+    const today = now.toLocaleDateString('zh-TW');
+    const isOpen = now.getHours() >= 9 && now.getHours() < 14;
+
+    const prompt = `你是一位專業的台股分析師，請根據今日市場狀況產出一份台股操作報告。
+
+今日日期：${today}
+市場狀態：${isOpen ? '盤中' : '收盤後'}
+
+請只回傳以下格式的JSON，不要其他文字：
+{
+  "title": "報告標題（含日期）",
+  "market_trend": "bullish或bearish或sideways",
+  "summary": "核心摘要約200字，包含資金面、主力動向、風險提示",
+  "conclusion": "今日操作建議約100字"
+}`;
+
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('AI回傳格式錯誤');
+    const aiData = JSON.parse(jsonMatch[0]);
+
+    const reportDate = now.toISOString().split('T')[0];
+    const dbResult = await pool.query(
+      `INSERT INTO reports (title, report_date, market_trend, summary, content, status, created_by)
+       VALUES ($1,$2,$3,$4,$5,'draft',$6) RETURNING *`,
+      [aiData.title, reportDate, aiData.market_trend, aiData.summary, JSON.stringify({ conclusion: aiData.conclusion }), req.user.id]
+    );
+
+    res.json({ message: 'AI報告已生成', report: dbResult.rows[0] });
+  } catch (err) {
+    console.error('AI錯誤:', err.message);
+    res.status(500).json({ error: 'AI生成失敗：' + err.message });
+  }
+});
+
 
 module.exports = router;
