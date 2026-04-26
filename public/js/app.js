@@ -287,6 +287,15 @@ function showSectorStocks(name, stocks) {
 // ===== 股票篩選 =====
 let screenerFilter = 'all';
 
+document.getElementById('sectors-list').addEventListener('click', (e) => {
+  const row = e.target.closest('[data-sector-name]');
+  if (!row) return;
+  const name = row.dataset.sectorName;
+  const stocks = JSON.parse(decodeURIComponent(row.dataset.sectorStocks));
+  showSectorStocks(name, stocks);
+});
+
+
 async function loadScreener() {
   const listEl = document.getElementById('screener-list');
   listEl.innerHTML = '<div class="loading-spinner">篩選中...</div>';
