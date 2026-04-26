@@ -47,6 +47,9 @@ app.use('/api/auth/login', authLimiter);
 // 靜態檔案
 app.use(express.static(path.join(__dirname, '../public')));
 
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
+
 // API 路由
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
