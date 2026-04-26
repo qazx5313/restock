@@ -153,7 +153,9 @@ function initMainApp() {
     document.getElementById('pending-status').textContent =
       user.status === 'expired' ? '您的使用期限已到期，請聯繫管理員續約。' : '帳號建立成功，等待管理員開通中。';
     document.getElementById('btn-pending-logout').onclick = logout;
-    showPage('pending');
+    document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
+document.getElementById('page-pending').style.display = 'flex';
+
     return;
   }
 
