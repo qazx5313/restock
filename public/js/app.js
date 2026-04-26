@@ -564,7 +564,7 @@ async function showReportDetail(id) {
 // ===== Modal =====
 function showModal(content) {
   document.getElementById('modal-content').innerHTML = content;
-  document.getElementById('stock-modal').style.display = '';
+  document.getElementById('stock-modal').style.display = 'flex';
 }
 
 document.getElementById('modal-close').addEventListener('click', () => {
@@ -678,7 +678,7 @@ function openActivateModal(userId, nickname) {
   document.getElementById('activate-target-name').textContent = `開通對象：${nickname}`;
   document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById('custom-days').value = '';
-  document.getElementById('activate-modal').style.display = '';
+  document.getElementById('activate-modal').style.display = 'flex';
 }
 
 document.querySelectorAll('.day-btn').forEach(btn => {
