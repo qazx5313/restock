@@ -528,7 +528,7 @@ async function loadReports() {
     }
     const trendMap = { bullish: '多頭', bearish: '空頭', sideways: '震盪' };
     listEl.innerHTML = data.reports.map(r => `
-      <div class="report-card" onclick="showReportDetail(${r.id})">
+      <div class="report-card" data-report-id="${r.id}">
         <div class="report-card-header">
           <div>
             <div class="report-title">${r.title}</div>
@@ -539,6 +539,11 @@ async function loadReports() {
         ${r.summary ? `<div class="report-summary">${r.summary.slice(0, 100)}${r.summary.length > 100 ? '...' : ''}</div>` : ''}
       </div>
     `).join('');
+     document.getElementById('reports-list').onclick = (e) => {
+  const card = e.target.closest('[data-report-id]');
+  if (card) showReportDetail(parseInt(card.dataset.reportId));
+};
+
   } catch (err) {
     listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div>載入失敗</div></div>';
   }
