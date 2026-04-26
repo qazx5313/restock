@@ -836,7 +836,7 @@ input:focus, select:focus, textarea:focus {
 
 /* ===== 待審核頁 ===== */
 #page-pending {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
@@ -863,7 +863,7 @@ input:focus, select:focus, textarea:focus {
   background: rgba(11,60,93,0.4);
   backdrop-filter: blur(4px);
   z-index: 200;
-  display: none !important;
+  display: none;
   align-items: flex-end;
   justify-content: center;
   padding: 16px;
