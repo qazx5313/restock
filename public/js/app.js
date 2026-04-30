@@ -418,7 +418,6 @@ function renderStockAnalysis(s) {
   const resultEl = document.getElementById('stock-result');
   const changeSign = s.change >= 0 ? '+' : '';
   const trendBadge = `sth-badge ${s.trend === '多頭' ? 'bullish' : s.trend === '空頭' ? 'bearish' : 'sideways'}`;
-
   const scoreColor = s.mainScore >= 80 ? 'score-80' : s.mainScore >= 60 ? 'score-60' : s.mainScore >= 40 ? 'score-40' : 'score-20';
   const scoreLabel = s.mainScore >= 80 ? '主力偏多' : s.mainScore >= 60 ? '偏多' : s.mainScore >= 40 ? '中性' : '偏空';
 
@@ -442,9 +441,88 @@ function renderStockAnalysis(s) {
       </div>
     </div>
 
+    ${s.limitUpAlert ? `
+    <div style="background:linear-gradient(135deg,#fff3cd,#ffe69c);border-radius:10px;padding:12px;margin-bottom:12px;border-left:4px solid #f59e0b">
+      <div style="font-size:13px;font-weight:700;color:#92400e">${s.limitUpAlert.msg}</div>
+    </div>` : ''}
+
     <div class="analysis-section">
-      <div class="analysis-title">技術分析結論</div>
-      <p style="font-size:14px;line-height:1.8;color:var(--text)">${s.techConclusion}</p>
+      <div class="analysis-title">📊 技術指標</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--card-bg);border-radius:8px;padding:10px;border:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--text-sub)">5MA / 20MA / 60MA</div>
+          <div style="font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace">${s.ma5} / ${s.ma20} / ${s.ma60}</div>
+        </div>
+        <div style="background:var(--card-bg);border-radius:8px;padding:10px;border:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--text-sub)">RSI(14)</div>
+          <div style="font-size:16px;font-weight:700;color:${s.rsi > 70 ? 'var(--down)' : s.rsi < 30 ? 'var(--up)' : 'var(--text)'}">${s.rsi}</div>
+        </div>
+        <div style="background:var(--card-bg);border-radius:8px;padding:10px;border:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--text-sub)">KD值</div>
+          <div style="font-size:13px;font-weight:700">K:${s.kd?.k} D:${s.kd?.d}</div>
+          <div style="font-size:11px;color:${s.kd?.cross === '黃金交叉' ? 'var(--up)' : s.kd?.cross === '死亡交叉' ? 'var(--down)' : 'var(--text-sub)'}">${s.kd?.cross || s.kd?.signal}</div>
+        </div>
+        <div style="background:var(--card-bg);border-radius:8px;padding:10px;border:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--text-sub)">壓力/支撐</div>
+          <div style="font-size:11px">壓力1: <span style="color:var(--down);font-weight:700">${s.resistance?.r1 || '--'}</span></div>
+          <div style="font-size:11px">支撐: <span style="color:var(--up);font-weight:700">${s.resistance?.support || '--'}</span></div>
+        </div>
+      </div>
+      <p style="font-size:13px;line-height:1.8;color:var(--text)">${s.techConclusion}</p>
+    </div>
+  `;
+    <div class="analysis-section">
+      <div class="analysis-title">🎯 進場區分析</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+        <div style="background:linear-gradient(135deg,#fff8e7,#fff3cd);border-radius:10px;padding:12px;border:1px solid #f59e0b">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-size:13px;font-weight:700;color:#92400e">A★ 低接</span>
+            <span style="font-size:11px;color:#92400e;background:#fde68a;padding:2px 8px;border-radius:20px">風報 1:${s.entryZones?.A?.rr || '--'}</span>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:#92400e">${s.entryZones?.A?.low} ～ ${s.entryZones?.A?.high}</div>
+          <div style="font-size:11px;color:#92400e;margin-top:4px">停損: ${s.entryZones?.A?.stopLoss} &nbsp;|&nbsp; 目標: ${s.entryZones?.A?.target}</div>
+          <div style="font-size:10px;color:#b45309;margin-top:2px">${s.entryZones?.A?.desc}</div>
+        </div>
+        <div style="background:${s.entryZones?.B?.active ? 'linear-gradient(135deg,#f0fdf4,#dcfce7)' : 'var(--card-bg)'};border-radius:10px;padding:12px;border:1px solid ${s.entryZones?.B?.active ? '#22c55e' : 'var(--border)'}">
+          <div style="font-size:13px;font-weight:700;color:var(--text-sub)">B 回穩 ${s.entryZones?.B?.active ? '✅ 目前在此區' : '—'}</div>
+          <div style="font-size:11px;color:var(--text-sub);margin-top:4px">${s.entryZones?.B?.desc}</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:10px;padding:12px;border:1px solid #3b82f6">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-size:13px;font-weight:700;color:#1d4ed8">C 突破</span>
+            <span style="font-size:11px;color:#1d4ed8;background:#bfdbfe;padding:2px 8px;border-radius:20px">風報 1:${s.entryZones?.C?.rr || '--'}</span>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:#1d4ed8">${s.entryZones?.C?.low} ～ ${s.entryZones?.C?.high}</div>
+          <div style="font-size:11px;color:#1d4ed8;margin-top:4px">停損: ${s.entryZones?.C?.stopLoss} &nbsp;|&nbsp; 目標: ${s.entryZones?.C?.target}</div>
+          <div style="font-size:10px;color:#1e40af;margin-top:2px">${s.entryZones?.C?.desc}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="analysis-section">
+      <div class="analysis-title">🔍 回測訊號（近40天）</div>
+      ${s.backtestSignals && s.backtestSignals.length > 0 ? `
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">
+        ${s.backtestSignals.map(sig => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--card-bg);border-radius:8px;border:1px solid var(--border)">
+            <div>
+              <span style="font-size:11px;color:var(--text-sub)">${sig.date?.slice(5) || '--'}</span>
+              <span style="font-size:12px;font-weight:700;color:var(--up);margin-left:8px">${sig.signal}</span>
+            </div>
+            <span style="font-size:12px;font-family:'JetBrains Mono',monospace">${sig.price} <span class="${sig.change >= 0 ? 'up' : 'down'}">${sig.change >= 0 ? '+' : ''}${sig.change}%</span></span>
+          </div>
+        `).join('')}
+      </div>` : '<div style="font-size:12px;color:var(--text-sub);padding:8px">近期無明確進場訊號</div>'}
+
+      <div style="margin-top:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--text-sub);margin-bottom:6px">⚠️ 未選出原因（近3天）</div>
+        ${s.notSelectedReasons && s.notSelectedReasons.length > 0 ? s.notSelectedReasons.map(r => `
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:11px;color:var(--text-sub)">${r.date?.slice(5) || '--'}</span>
+            <span style="font-size:11px;color:var(--down)">${r.reason}</span>
+          </div>
+        `).join('') : '<div style="font-size:12px;color:var(--text-sub)">無資料</div>'}
+      </div>
     </div>
 
     <div class="analysis-section">
@@ -460,26 +538,13 @@ function renderStockAnalysis(s) {
         <div style="font-size:12px;margin-top:4px;color:var(--text-sub)">判定：<strong>${scoreLabel}</strong></div>
       </div>
       <div class="main-status-grid">
-        <div class="msi">
-          <div class="msi-label">主力狀態</div>
-          <div class="msi-value ${s.mainStatus === '出貨' ? 'down' : s.mainStatus === '無主力' ? 'neutral' : 'up'}">${s.mainStatus}</div>
-        </div>
-        <div class="msi">
-          <div class="msi-label">距成本區</div>
-          <div class="msi-value up">+${s.mainDistPercent}%</div>
-        </div>
-        <div class="msi">
-          <div class="msi-label">成本低點</div>
-          <div class="msi-value">${s.mainCostLow}</div>
-        </div>
-        <div class="msi">
-          <div class="msi-label">成本高點</div>
-          <div class="msi-value">${s.mainCostHigh}</div>
-        </div>
+        <div class="msi"><div class="msi-label">主力狀態</div><div class="msi-value ${s.mainStatus === '出貨' ? 'down' : 'up'}">${s.mainStatus}</div></div>
+        <div class="msi"><div class="msi-label">距成本區</div><div class="msi-value up">+${s.mainDistPercent}%</div></div>
+        <div class="msi"><div class="msi-label">成本低點</div><div class="msi-value">${s.mainCostLow}</div></div>
+        <div class="msi"><div class="msi-label">成本高點</div><div class="msi-value">${s.mainCostHigh}</div></div>
       </div>
       <p style="font-size:13px;color:var(--text-sub);line-height:1.7">${s.mainConclusion}</p>
     </div>
-
     <div class="analysis-section">
       <div class="analysis-title">操作劇本</div>
       <div class="play-book">
@@ -506,6 +571,7 @@ function renderStockAnalysis(s) {
     </div>
   `;
 }
+
 
 document.getElementById('btn-search-stock').addEventListener('click', () => {
   const code = document.getElementById('stock-code-input').value.trim();
