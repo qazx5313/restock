@@ -470,7 +470,6 @@ function renderStockAnalysis(s) {
       </div>
       <p style="font-size:13px;line-height:1.8;color:var(--text)">${s.techConclusion}</p>
     </div>
-  `;
     <div class="analysis-section">
       <div class="analysis-title">🎯 進場區分析</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
